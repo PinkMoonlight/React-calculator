@@ -2,9 +2,6 @@ import React from 'react';
 
 let Calculator = (props) => {
 
-    let topDisplayUI = [...props.topDisplay];
-
-
     return (
           <div className="calc-container">
             <div id="top-display" className="display"></div>
@@ -25,7 +22,7 @@ let Calculator = (props) => {
             <button id="one" value="1" className="button" onClick={props.handleNumbers}>1</button>
             <button id="zero" value="0" className="button" onClick={props.handleZeros}>0</button>
             <button id="decimal" value="." className="button" onClick={props.handleNumbers}>.</button>
-            <button id="equals" value={props.answer} className="button" onClick={props.handleEquals}>=</button>
+            <button id="equals" value="=" className="button" onClick={props.handleEquals}>=</button>
           </div>
         );  
 };

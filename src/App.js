@@ -14,20 +14,20 @@ class App extends Component {
   componentDidUpdate() {
     document.getElementById('display').innerText = this.state.currentInput;
     document.getElementById('top-display').innerText = this.state.topDisplay.toString().split(',').join(''); 
-    console.log(this.state);
   };
 
   handleNumbers = (e) => {
     let key = e.target.value;
-    let display = this.state.currentInput[0] !== '0' ? this.state.currentInput  : key === '.' ? this.state.currentInput : '';
+    let display = this.state.currentInput !== '0' ? this.state.currentInput  : key === '.' && this.state.currentInput === '0' ?  this.state.currentInput : '';
     let previousKey = this.state.previousKey;
-    let topDisplay = key === '.' && this.state.topDisplay === [] ? ['0'] : [...this.state.topDisplay];
+    let topDisplay = this.state.topDisplay === [] && key === '.' ? [0] : [...this.state.topDisplay];
 
-    if (!e.target.disabled && key === '.') {
-      console.log("in decimal statement")
+    if (key === '.' && !e.target.disabled) {
       document.getElementById('decimal').setAttribute('disabled', 'disabled');
       document.getElementById('zero').removeAttribute('disabled', 'disabled'); 
-
+        if (this.state.topDisplay.length < 1) {
+          topDisplay.unshift('0');
+        }
       this.setState( {
         currentInput: display + key,
         decimal: true
@@ -46,30 +46,14 @@ class App extends Component {
       previousKey: key,
       topDisplay: [...topDisplay, key]
     } );
-    console.log(key, this.state.decimal)
 
   };
 
-  handleOperators = (e) => {
-    let key = e.target.value;
-    let topDisplay = [...this.state.topDisplay, key];
-
-      this.setState( {
-        currentInput: key,
-        topDisplay: topDisplay, 
-        previousKey: key,
-        decimal: false
-      });
-      document.getElementById('decimal').removeAttribute('disabled', 'disabled');
-  };
-/* when i press a zero after a decimal apended to a zero */
   handleZeros = (e) => {
     let key = e.target.value;
     let previousKey = this.state.previousKey;
     let display = this.state.decimal === true ? this.state.currentInput : this.state.currentInput[0] !== '0' ? this.state.currentInput : '';
     let topDisplay = [...this.state.topDisplay];
-
-    console.log(this.state.currentInput[0], this.state.decimal);
 
 
     if (this.state.currentInput[0] === '0'  && this.state.decimal === false) {
@@ -80,7 +64,7 @@ class App extends Component {
           currentInput: key
         });
     }  else {
-      display += e.target.value;
+      display += key;
       this.setState( {currentInput: display}); 
     }
     this.setState({ 
@@ -89,9 +73,55 @@ class App extends Component {
     });
   };
 
+  handleOperators = (e) => {
+    let key = e.target.value;
+    let answer = this.state.answer;
+    let topDisplay;
+    let multipleIndex = key != "-" &&
+          this.state.previousKey === "x" || 
+          this.state.previousKey === "/" || 
+          this.state.previousKey === "+" || 
+          this.state.previousKey === "-" ? 
+          this.state.topDisplay.indexOf(this.state.previousKey) : -1;
+
+    if (multipleIndex >= 0)  {
+      if (this.state.topDisplay[multipleIndex -1] === "x" ||
+          this.state.topDisplay[multipleIndex -1] === "/" ||
+          this.state.topDisplay[multipleIndex -1] === "+" ||
+          this.state.topDisplay[multipleIndex -1] === "-"
+          ) {
+          let start = this.state.topDisplay.slice(0, multipleIndex -1);
+          let end = this.state.topDisplay.slice(multipleIndex + 1, this.state.topDisplay.length);
+          topDisplay = [...start, ...end, key];
+      } else {
+        let start = this.state.topDisplay.slice(0, multipleIndex);
+        let end = this.state.topDisplay.slice(multipleIndex + 1, this.state.topDisplay.length);
+        topDisplay = [...start, ...end, key];
+      }
+    } else {
+      topDisplay = this.state.previousKey === '=' ? [answer.toString(), key] : [...this.state.topDisplay, key];
+    }
+    
+      this.setState( {
+        currentInput: key,
+        topDisplay: topDisplay, 
+        previousKey: e.target.value,
+        decimal: false,
+        answer: null
+      });
+      document.getElementById('decimal').removeAttribute('disabled', 'disabled');
+  };
+
   handleEquals = (e) => {
-    /* will need a loop, loop over the topDisplay Array */
-    this.setState({ previousKey: e.target.value});
+    let result = this.state.topDisplay.toString().replace('x', '*').split(',').join('');
+    let answer = eval(result);
+    answer = answer.toString();
+    this.setState({ 
+      previousKey: e.target.value,
+      answer: answer,
+      currentInput: answer,
+      topDisplay: [answer]  
+    });
   };
 
   handleClearInput = () => {
@@ -102,7 +132,7 @@ class App extends Component {
       currentInput: '0',
       topDisplay: [],
       previousKey: null,
-      answer: null,
+      answer: 0,
       decimal: false
     });
   };
@@ -129,12 +159,3 @@ class App extends Component {
 }
 }
 export default App;
-
-
-/*
-access DOM elements
-add event listeners
-write event handlers
-update UI
-
-*/
