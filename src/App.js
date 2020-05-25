@@ -17,6 +17,7 @@ class App extends Component {
   };
 
   handleNumbers = (e) => {
+    console.log(e);
     let key = e.target.value;
     let display = this.state.currentInput !== '0' ? this.state.currentInput  : key === '.' && this.state.currentInput === '0' ?  this.state.currentInput : '';
     let previousKey = this.state.previousKey;
@@ -50,7 +51,7 @@ class App extends Component {
   };
 
   handleZeros = (e) => {
-    let key = e.target.value;
+    let key = e.target.value || e.target.key;
     let previousKey = this.state.previousKey;
     let display = this.state.decimal === true ? this.state.currentInput : this.state.currentInput[0] !== '0' ? this.state.currentInput : '';
     let topDisplay = [...this.state.topDisplay];
@@ -77,7 +78,7 @@ class App extends Component {
     let key = e.target.value;
     let answer = this.state.answer;
     let topDisplay;
-    let multipleIndex = key != "-" &&
+    let multipleIndex = key !== "-" &&
           this.state.previousKey === "x" || 
           this.state.previousKey === "/" || 
           this.state.previousKey === "+" || 
